@@ -1,0 +1,82 @@
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+public class SmartHomeApp extends Application {
+
+    // NOTE: The simple 'record Device' from your uploaded file is REMOVED.
+    // We now use the dedicated Device.java class.
+    
+    @Override
+    public void start(Stage primaryStage) {
+        // 1. Define the list of devices using the new Device/FanDevice classes
+        List<Device> smartDevices = createDeviceList();
+        
+        VBox rootVBox = new VBox(15); 
+        rootVBox.setPadding(new javafx.geometry.Insets(20)); 
+
+        try {
+            // 2. Iterate through the device list and load a card for each
+            for (Device device : smartDevices) {
+                // Load the FXML layout for the device card
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("device_card.fxml"));
+                VBox deviceCard = loader.load();
+                
+                // Get the controller instance and set the ENTIRE Device object
+                DeviceCardController controller = loader.getController();
+                
+                // CRITICAL CHANGE: Pass the WHOLE Device object for binding
+                controller.setDevice(device); 
+
+                // Add the loaded device card to the main VBox
+                rootVBox.getChildren().add(deviceCard);
+            }
+
+            // 3. Set up the main Scene
+            ScrollPane scrollPane = new ScrollPane(rootVBox);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setFitToHeight(true);
+
+            Scene scene = new Scene(scrollPane, 400, 600);
+            primaryStage.setTitle("Smart Home Control (JavaFX) - Fan/Slider Demo");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Creates a list of devices using both Device and FanDevice classes.
+     * @return A list of Device objects.
+     */
+    private List<Device> createDeviceList() {
+        List<Device> devices = new ArrayList<>();
+        
+        // Standard Devices (using the base Device class)
+        devices.add(new Device("Living Room Light", true));
+        devices.add(new Device("Front Door Lock", false));
+        devices.add(new Device("Kitchen Outlet", true));
+        
+        // Specialized Device (using the FanDevice class with speed property)
+        // Initial speed of 2 means isPoweredOn is automatically true.
+        devices.add(new FanDevice("Bedroom Fan", 2)); 
+        
+        // Another standard device
+        devices.add(new Device("Thermostat", true));
+        
+        return devices;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
