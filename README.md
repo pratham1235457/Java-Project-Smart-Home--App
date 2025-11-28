@@ -1,1 +1,1 @@
-# coursera-test
+# Java Project
